@@ -35,6 +35,7 @@ steps:
 41:10 Share and teach others about backend project setup
 
 
+Aggregation in databases means combining and processing data to get useful information.
 
 steps of setup a envirnment of backend
 
@@ -61,4 +62,7 @@ reminder:basically jo middleare and congiguration hoti hai vo app.use krna hai
 
 abb kuch middleares banane hai jo check krenge ge req and resp ke beech me
 
-8.
+
+npm:
+
+
