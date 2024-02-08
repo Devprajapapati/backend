@@ -71,7 +71,7 @@ userSchema.methods.isPasswordCorrect = async function(password){
     //compare method basically jo chheze mangta hai strng me pasword jo user bhejega and encrpyted password
    return await bcrypt.compare(password,this.password);
 }
-
+          
 userSchema.methods.generateAccessToken =  function (){
     return jwt.sign(
         {
@@ -106,6 +106,7 @@ export const User = mongoose.model("User",userSchema)
 
 
 
+ // bcrpytjs ->password to hash mtlb ham jo password dete hai vo string me deeta he to vahi sab krna ki decrpyt etc..
 
 
 
