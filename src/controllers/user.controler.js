@@ -1,20 +1,45 @@
 import asyncHandler from '../utils/asyncHandler.js'
 import apiError from '../utils/apiError.js'
 
-//since all models files are export and made by maongoose a part of mongodb
-// so all models files acan drectly contact with the database
+import { User} from '../models/user.models.js'   //since all models files are export and made by maongoose a part of mongodb
+                                                 // so all models files acan drectly contact with the database
 
-import { User } from '../models/user.models.js'
 
-// now uplaod from cloudinary
+import { uplaodOnCloudinary } from '../utils/cloudinary.js' // now uplaod from cloudinary
 
-import { uplaodOnCloudinary } from '../utils/cloudinary.js'
 
-// for response
+import { apiResponse } from '../utils/apiResponse.js' //for rspponse
 
-import { apiResponse } from '../utils/apiResponse.js'
+import jwt from "jsonwebtoken"
+
+
+
+const generateAceesAndRefreshTokens = async(userId) => {
+
+    try{
+
+    const user =await User.findById(userId);
+     const accesToken =   user.generateAccessToken()
+     const refreshToken =   user.generateRefreshToken()
+        
+     user. refreshToken = refreshToken
+     //abb jab hi ham usse save krenge to hoga ye ki kuch aur feild jo hamree user me nahi hai vo bhi add hojayengi
+     await user.save({validateBeforeSave: false})
+
+     return {accesToken,refreshToken}
+    }
+    catch(error){
+        throw new apiError(500,"Somethng went wrong while generating access and frefresh token")
+    }
+
+    
+}
+
+
 
 const registerUser = asyncHandler(async(req,res) => {
+
+
     /* 1.get informaion from fronened using postman , what are the information that is decided by user models
     2.validation -> sab chheeze deni zaruri hai
     3.check if user already exist :username,email
@@ -37,16 +62,23 @@ const registerUser = asyncHandler(async(req,res) => {
     //1.
 
     const {username,fullName,email,password} = req.body
+    
+    
+    // console.log("request body:",req.body)
+    // console.log("request headeer:",req.header)
     // console.log("Email:",password)
     
+
+
     //2.
+
 
     // if(fullName === ""){
     //     throw new apiError(400,"fullName is required")
     // }
 
     if(
-        [fullName,email,username,password].some((feild)=> feild?.trim === "")
+        [fullName,email,username,password].some((feild)=> feild?.trim === " ")
     ){
         throw new apiError(400,"All feilds is required")
     }
@@ -91,7 +123,7 @@ const registerUser = asyncHandler(async(req,res) => {
 
     // to check all feild
 
-   const existedUSer =  User.findOne({
+   const existedUSer = await User.findOne({
         $or: [{username},{email}]
     })
     if(existedUSer)
@@ -135,14 +167,19 @@ const registerUser = asyncHandler(async(req,res) => {
     
     */
 
-
-    const avatarLocalpath = req.files?.avatar[0]?.path;
-    const coverImageLocalpath = req.files?.coverImage[0]?.path;
-    // console.log("path:",avatarLocalpath)
+// console.log(req.files.avatar)
+//  console.log("avatr:",req.files.avatar)
+    const avatarLocalpath =  req.files?.avatar[0]?.path;
+    // const coverImageLocalpath = req.files?.coverImage[0]?.path;
   
     if(!avatarLocalpath)
     {
         throw new apiError(400,"Avatar file is required")
+    }
+
+
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
+       var coverImageLocalpath = req.files.coverImage[0].path;
     }
 
 
@@ -151,7 +188,7 @@ const registerUser = asyncHandler(async(req,res) => {
     const avatar =  await uplaodOnCloudinary(avatarLocalpath)
     const coverImage =  await uplaodOnCloudinary(coverImageLocalpath)
     if(!avatar){
-        throw new apiError(400,"Avatar file is required")
+        throw new apiError(400,"Avatar  file is required")
     }
 
 
@@ -160,10 +197,10 @@ const registerUser = asyncHandler(async(req,res) => {
      const user =   await User.create({
         fullName,
         avatar: avatar.url,
-        coverImage: coverImage?.url || "",
+        coverImage: coverImage?.url || " ",
         email,
         password,
-        username: username.toLowercase()
+        username: username
     })
 
     //7
@@ -176,8 +213,11 @@ const registerUser = asyncHandler(async(req,res) => {
 
 
     // by default select me sare selected hote hai to ham basically ve feild dete hai jo hame nahi chaoye
-   const createdUser = await User.findById(user._id).select("-password -refreshToken") //return the wole response excluding 
 
+    // console.log("created user before findbyid:",user)
+
+   const createdUser = await User.findById(user._id).select("-password -refreshToken") //return the wole response excluding 
+//    console.log("created user:",createdUser)
    if(!createdUser)
    {
     throw new apiError(500,"Something went wrong while registering user")
@@ -196,7 +236,7 @@ const registerUser = asyncHandler(async(req,res) => {
 
 
 })
-export default registerUser
+
 
 /*
 const registerUser =(req,res) => {
@@ -207,3 +247,176 @@ const registerUser =(req,res) => {
 
 export default registerUser
  */
+
+
+const loginUser = asyncHandler(async(req,res) => {
+  /* mere:
+     Todos:
+     1.user ke pass access token hona chaiye
+     2. user sign up hona hi chaoye accound bana hona chaiye agr nahi hai to banao
+      3.user email,password feild ko khali na chodde
+      4.agar bhaar diya hai to access token ki id match krni cahiye server ke pass jo secret hai
+      5.agar match hai to login krdena hai
+  */
+
+      /* master ke:
+      Todods:
+      // req body - data
+      // username or email
+      // find the user
+      // password check
+      // access and refresh oken generate 
+      // send it to user
+
+      */
+
+      //1.
+      const {username,email,password} =  req.body
+    
+      //2.
+      if(!(username || email))
+      {
+        throw new apiError(400,'username or email is required')
+      }
+
+      //3. 
+      const existedUser =  await User.findOne({
+        $or: [{username} ,{email}]
+      })
+  
+      if(!existedUser){
+        throw new apiError(404,"Sign up first || user doen not exiseted")
+      }   
+    //   console.log(password)
+    //   console.log(existedUser.password)
+      
+      // abb ye jo hai isPassordCorrect sba meere banaye hue method hai naki mingdb ke khdu ek to me
+      //unhe ecess bhi khudhi karunga
+ 
+      //3.  
+      const isPasswordValid =  existedUser.isPasswordCorrect(password)
+
+      if(!isPasswordValid){
+        throw new apiError(404,"PAssword is invalid")
+      }  
+
+      //4.
+     const {accesToken,refreshToken} =  await generateAceesAndRefreshTokens(existedUser._id)
+
+     //abb basically usse objects me sa=se hamse bhot asri asi files bhi hogi jo hame vha nahi deni hai mtlb user ko
+
+     const loggesUser = await User.findById(existedUser._id).select("-password -refreshToken")
+
+
+     //5.
+     //now about cookies
+
+     // setting ki ham apni coolies ko sirf server se hi modify krenge to ye tab dalna padhta hai basically
+
+     const options = {
+        httpOnly: true,
+        secure : true
+     }
+
+     // acces token and refresh cookie : basically cookie method ket valye pair leta hai
+
+     return res.status(200)
+     .cookie("accessToken",accesToken,options)
+     .cookie("refreshToken",refreshToken,options)
+     .json(
+        new apiResponse(
+            200,
+            {
+                user: loggesUser,accesToken,refreshToken
+            },
+            "User logged in Successfully"
+        )
+     )
+})
+
+const logoutUser = asyncHandler(async(req,res) => {
+
+/*
+Todods:
+  1. remove all cookies
+  2.refresh oken reset
+*/
+
+//1.
+//phle me dikkat ye atti hai ki  bascialy user konsa dleete krna hai uski id to nhi haina
+//use like ham aona khuhd ka middkeware design krenge basically hua ye tha ki jab ham cookeparser() middleware
+// lagaya to ussse ham jo req ayyi hai uski bhi ccokie le skte hai mtlb abbb bande ne phle login kiya use pass cookie gyi haina fir dobara 
+//ayya access token match hua to basically abb ham jaise hinreq atti hai vha se ham middleqare lgga denge aur user ka data utha lenege
+
+//imp krre hai ye ki ham true login dekhenge middleare mtlb agar vahi banda dobara yya hai to ham usse data leelnge aur req.body me ek naya
+//object add krdenge and vha se fill logout ka sysytem dekhenge
+
+//basically me yha find by ud bhi use krrskte hai jaise hamne yha getAccessand 'refreshToken me ki bss wha par hame user me se refrresh token delete krnna hai
+
+//set me basically ve cheez dete hai jo hame updqe krni hoti hai
+
+
+User.findByIdAndUpdate(
+   await req.user._id,
+    {
+        $set :{
+            refreshToken: undefined
+        }
+    },
+    {
+        new: true
+    }
+)
+const options = {
+    httpOnly: true,
+    secure : true
+ }
+
+ return res.status(200).clearCookie("accessToken",options).clearCookie("refreshToken",options).json(new apiResponse(200,{},"userlogout"))})
+
+
+      //basiclly refresh token hamare access token to refresh krne ke liye use kiya jaa hai hota ye hai ham accesss token
+     // short lived hta hai o ham krte hai ki ek endpoint banate hai jab isse end point pe cheez pauche to hamara token refrgenerate hojaye
+     // vo chhexx hai:
+
+// abhi basically hamne ek controller banaya he jo reenerate krega naki endpoint diya hai endpoint route sme diya jayega
+const refreshAccessTokenRegenrate = asyncHandler(async(req,res) => {
+        //jwt verify hamesha decoded information deta ha\-
+try {
+    
+            const token = req.cookie.refreshToken || req.body.refreshToken
+    
+            if(!token){
+                throw new apiError(400,"invalid token")
+            }
+    
+           const decodedUrl = jwt.verify(token,REFRESH_TOKEN_SECRET)
+           const user =await User.findById(decodedUrl?._id)
+    
+         const {accesToken,refreshToken} = generateAceesAndRefreshTokens(user?._id)
+    
+         const options = {
+            httpOnly:true,
+            secure:true,
+         }
+    
+         return res.status(200)
+         .cookie("accessToken",accesToken,options)
+         .cookie("refreshToken",refreshToken,options)
+         .json(
+            new apiResponse(
+                200,
+                {accesToken,refreshToken},
+                "Token regenerated successfully"
+            )
+         )
+} catch (error) {
+    throw new apiError(401,error?.message || "invalid refresh token")
+}
+
+        
+
+
+})     
+
+export {loginUser , registerUser,logoutUser,refreshAccessTokenRegenrate}

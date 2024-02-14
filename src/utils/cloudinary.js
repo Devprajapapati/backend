@@ -1,5 +1,8 @@
 import {v2 as cloudinary} from "cloudinary"
 import fs from 'fs' 
+
+import dotenv from "dotenv"
+dotenv.config()
 // file sysytem ding many function like read ,wriete,async etx etx
 
 
@@ -14,19 +17,26 @@ cloudinary.config({
 
 const uplaodOnCloudinary = async(localFilePath) => {
     try {
-        if(!localFilePath) return "File cannot be uplaoded";
+        if(!localFilePath)  return "File cannot be uploaded";;
 
         //upload the file on clodinary
-       const response = await cloudinary.uploader.upload(localFilePath,{
-            resource_type: "auto"
-        })
+        
 
-        //file have been uplaoded 
+        console.log("Uploading file to Cloudinary. Local path:",localFilePath);
+      const respoanse  =await cloudinary.uploader.upload(localFilePath,{
+        resource_type: "auto",
+      })
 
-        console.log("File is uplaoded on cloudinary",response.url)
-        return response
+
+        //file have been uplaoded
+
+        // console.log("File is uplaoded on cloudinary",respoanse.url)
+        fs.unlinkSync(localFilePath)
+        // console.log(respoanse)
+        return respoanse
     } catch (error) {
-        fs.unlinkSync(localFilePath) //remove the locally saved temporary file
+       fs.unlinkSync(localFilePath) //remove the locally saved temporary file
+      throw error
     }
 }
 

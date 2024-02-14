@@ -16,6 +16,7 @@ app.use(cors({
 //middlleware set
 //json acceptesd in app.use
 
+// req middleare
 //json limit - ki abb ham sari files json me thodi hi denge
 app.use(express.json({limit:"16kb"}))
 
@@ -28,6 +29,20 @@ app.use(express.static("public"))
 
 //ccokie parser basically krte hai ye ki kaise me server se browser ki cookies excess krr pau basically crud operation perform krr pau cookie me
 app.use(cookieParser()) 
+
+
+
+//Routes import
+import router from './routes/user.routes.js'
+
+//routes declaration
+//basically abb ham yha par middleare set krenge kyoki abb routes dusri file se ayenge to middleares set honge
+
+// app.use('/users',router)
+
+app.use('/api/v1/users',router)
+
+// https://localhost: 8000/api/v1/users/register
 
 
 export default app

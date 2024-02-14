@@ -1,13 +1,14 @@
-import mongoose from "mongoose";
+import mongoose,{Schema} from "mongoose";
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 
-const userSchema = new mongoose.Schema(
+const userSchema = new Schema(
     {
-        watchHistory:{
+        watchHistory:[{
             type: Schema.Types.ObjectId,
             ref: "Vedio",
-        },
+            
+        },],
         username:{
             type: String,
             required:true,
@@ -26,7 +27,6 @@ const userSchema = new mongoose.Schema(
         password:{
             type:String,
             required: [true,"Password is required"],
-            lowercase:true,
             unique:true,
             trim:true,
 
@@ -34,7 +34,6 @@ const userSchema = new mongoose.Schema(
         fullName:{
             type:String,
             required:true,
-            lowercase:true,
             trim:true,
             index:true,
         },
@@ -57,19 +56,25 @@ const userSchema = new mongoose.Schema(
 //pre hook basically ek middleware hai jo ki kam krta hai ase ki koi cheez database me se staore hone se phle jo bhi kam krna hai vo pre hooks hota hai 
 //ise ander prebuild chheze hai jaise,save validate ,remove ,update
 
+
 userSchema.pre("save",async function (next){
+    // console.log(this.password)
     if(!this.isModified("password")) return next();
-    this.password = bcrypt.hash(this.password,10) //basically password encrpyt krre hai
+    this.password =await bcrypt.hash(this.password,10) //basically password encrpyt krre hai
     next()}) 
 
 //abb basically me krr kya rha hu ki abb ham jo password check krre  hai vo hai encpted or user bhejr ahia 12,34 etc 
 //uske liye ahm methods banate hai custom jo ayhi sab kuch check hojaye
 
 //ham baiscally userschema me se methods lete hai aur usem isPaswordCoreect apna method abnaate hai
-
+// console.log(passowrd)
+//basically ye methods mere hai mongoose ke inbuilt ni hai to m access bhi inhe User se nahi balki apne user se hi krr paunga
 userSchema.methods.isPasswordCorrect = async function(password){
+    const trimmedPass = password.trim();
+    const trimmedStoredPassword = this.password.trim();
     //compare method basically jo chheze mangta hai strng me pasword jo user bhejega and encrpyted password
-   return await bcrypt.compare(password,this.password);
+    // console.log(password)
+   return await bcrypt.compare(trimmedPass, trimmedStoredPassword);
 }
           
 userSchema.methods.generateAccessToken =  function (){
@@ -86,6 +91,15 @@ userSchema.methods.generateAccessToken =  function (){
         }
     )
 }
+
+
+//basically ham authenticate hamesha krte hai acces token se hi
+// par kabhi agar me access token expire hogya to ham rke hao refresh token
+
+//refresh token is a token we we sent to a user and to store data f same id in db mtlb
+//ham user ko bhi denge vo id and db me uss id denge abb hoga ye ki agar mera access token 
+//expire hua to me refresh token id check krunga dono client and db and then  will generate a new accesss token
+
 
 
 userSchema.methods.generateRefreshToken =  function (){
@@ -123,7 +137,7 @@ abb imp ye hai  server jab phle use deta bhejra tha vo payload me th a and clien
 abb vo header jo hoga usse server recheck krega ki ye vahi oken to anhi jo maine use phli baar login ke waqt diya tjha agar haan to acces milega otherwse nahi...
 abb sari check jo hogiuss secret code jisse ham signature bh bolte hai usse hogi...       
 */
-
+// client jab token wapas layega and usko bhejega to vo http header me bhejega and signatue ko compare krega
 
 
 
@@ -148,7 +162,13 @@ In the digital world:
 Header: Type of token (e.g., JWT).
 Payload: Information about the user (e.g., user ID, role).
 Signature: Ensures the token is valid and hasn't been tampered with.
-So, a JWT is like a digital wristband that proves who you are and what access you have. You carry it with you (send it in requests) to access special areas (secure parts of a website or services). The server checks the wristband to make sure you're allowed in. */
+So, a JWT is like a digital wristband that proves who you are and what access you have. You carry it with you (send it in requests) to access special areas (secure parts of a website or services). The server checks the wristband to make sure you're allowed in.
+
+abb jab client pe jwt token jayega to vah useke pass header and payload vo decode form me hota hai par signature hamesha encoded h rhta hai isliye jab ham verify rkte hi to ham dobara secret key bhejte ha
+
+
+When a server creates a JWT and sends it to a client, the server signs the JWT using its secret key. The server then sends the JWT, which includes the signature, to the client. The client can decode and read the information in the header and payload because those parts are base64url-encoded, but the signature remains encoded.
+*/
 
 
 

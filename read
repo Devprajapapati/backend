@@ -1,0 +1,201 @@
+#youtube project
+steps:
+
+
+00:03 Professional journey of building a production grade backend project starts here
+
+02:14 Setting up a professional backend project
+
+06:00 Setting up a professional backend project
+
+07:54 Keeping user data secured and handling images is a key focus of the project.
+
+12:01 Setting up a Git repository for a professional backend project
+
+14:31 Setting up the main branch as default and pushing code to remote repository.
+
+18:29 Create a Git Ignore file to exclude sensitive files from being pushed to git
+
+20:18 Setting up backend project includes managing environment variables and directory structure.
+
+24:01 Node mana is used to save files and restart the server during development.
+
+25:44 Setting up Node Man for automatic reloading of files
+
+29:16 Middlewares are code that runs in between requests to perform checks or tasks
+
+31:11 Setting up the project structure and checking Git status
+
+34:34 Setting up a professional backend project
+
+36:17 Setting up a professional backend project
+
+39:32 Setting up professional backend project involves code staging, preferences, and settings on local.
+
+41:10 Share and teach others about backend project setup
+
+
+Aggregation in databases means combining and processing data to get useful information.
+
+steps of setup a envirnment of backend
+
+1.install express in terminal -> packeage .json me rename karna script ko and type module dena hai take es6 module ki tarhe import ho skke
+
+2. make folder src and inside it make sub folders like controllers,db,middlewres,models,routes,utils.
+and files in root like index.js,constants,app.js
+
+3.make .env file in root directory
+
+4. create two file ek dhyaan ni hai vedio me dekhna git file hai par dusri hai ek gitignore file banani hai aur uska daa net s euthana hai
+
+5.make a prettier file names as prettierrc jisme me kuch default setting dal lena and also .prettierignore 
+
+6. connect dataabase vo kaise sabse phle db folder ke ander ek file banao jisme appko database connec tkrna hai
+
+remonder: database ek alag continent me hai use anne me time lggega to appne try catch and async await or promesis use krna hai and .env fle me vo sting daldena hai url name se and constants me name daldena hai
+
+7. fir apne app.js file me server setup krna hai,sabse phle cookie and cors dekhna hai
+
+to cors and cookie ke liye apne import krni app npm package
+
+reminder:basically jo middleare and congiguration hoti hai vo app.use krna hai
+
+abb kuch middleares banane hai jo check krenge ge req and resp ke beech me
+
+
+npm:
+
+............................................................
+
+jab bhi ham file upload krte hai to 2cheeze mainly istimal krte hai
+1. cloudinary - imaegs etc store  krne ke liye use krte hai mtlb ham sirf databasse me bass url rakhenge
+2. express fileupload // multer - multer basically ek midddleware hai jo check krega file uplaoding vagera cheezo ko.multer hi file upload krta hai 
+
+steps:
+1.multer ka usse krke file ko temprory store krra lnge server pe ek storage pe diskstorage
+2.cloudinary ka uske kree ham vo file server pe dal denge
+
+************************************************************
+HTTPS : Hyper Text Transfer Protocol -> how text is tranfered : kaise text trasnfer hota hainserver or client ke beech me
+
+kaise ham req response ko routes ko handle krr skte ha ham kiase bond banater hai serveror client ka kaise req ayyi fir kya krna hai ek sab http
+diff b/w http and https
+    :the main differnc eis regarding protocol mtlb http me data hota hai vo clear text me jata hai ex- apne abc bheja hai to abc hi ayega
+    :https me basically hota ye hai ki ek extra layer ajati hai jo ki hamare data ko encrpyt krr deti hai , normally readable na rhe
+
+ 
+1.URL -uniform resource locater
+2.URI -uniform resource identifier
+3.URN -uniform resource name
+
+
+
+Headers: meta data ie. key value pairs hote hai jo ki send kiye jatte hai response and request 
+: headers are used in caching,authentication ,manage state etc
+
+* Request Headers --> from client
+* Response Headers --> from server
+* Representation Headers --> encoding/compression
+* Payload Headers --> data
+
+
+
+Most comman headers   
+ : Accept -> application/json // mtlb jason ka data accept krta hu
+ : User Agent // kon si applicstion se req ayyi hai
+ : Authorization
+ :Content-type // images content etc bhejna
+ :Cookie
+ :Cache-control //data kab expire kru
+
+CORS header
+ :Acces-Control-Allow : means kha kha se req aa skti hai hamari appplication pe
+ :Acces-Control-Credentials 
+ :Acces-Control-Method: 
+
+Security
+ :Cross-Origin-Embedder-Policy
+ :Cross-Origin-Opener-Policy 
+ :Content-Security-Policy
+ :X-XSS-Protection
+
+
+HTTP Methods
+.get - reterve a resource mtlb lena hota hai
+.head - 
+.options - what options are avialable
+.trace - used in debuuging
+.delete
+.put - replace a resource
+.patch - replace a particular resourece
+.post - interact with resource mostly add krne ke liye
+
+
+Data Retrieval: GET is primarily used for retrieving data from the server. When a client (like a web browser) makes a GET request, 
+it's asking the server to send back a representation of a resource.
+URL Parameters: GET requests often include parameters in the URL. For example, when you submit a search query on a search engine, the query is usually included in the URL as a parameter in a GET request.
+
+Data Submission: POST is used when the client wants to submit data to the server. For example, when filling out a form on a website, the data entered is typically sent to the server using a POST request.
+Request Body: In a POST request, data is usually sent in the request body rather than as part of the URL. This is useful when dealing with larger amounts of data or when sensitive information, like passwords, needs to be sent securely.
+
+
+Status code
+ 1xx - Information
+ 2xx - Suceess
+ 3xx - Redirection mtlb remove hua he kya kahi gya etc
+ 4xx- client error
+ 5xx - server error
+ 
+
+ ***************************************************************
+
+ mongo db is a non sql databse where data is stored in a json lke fromat called BSON
+
+ through mongoose we can perform crud operation on db
+ 
+ 
+ ****************************************************************
+
+ middleare : ek check hota hai3 types hote hai
+ 1. request middleare:
+ 2.response middleare:
+ 3. route middlware:
+
+
+
+ *************************Knowlwege of authehticatmo**********
+ 
+ 
+ **********using only cocokie********
+
+
+ 1. Server generates a "sessionId" (signs it using "secret key"), and 
+ (a) saves the sessionId in a sessionDB, and 
+ (b) sends a cookie with the sessionId to the browser (client side).
+
+ 2. The browser (client side) receives the "cookie" in the response from server, and saves it in the "cookie" storage. 
+ 
+ 3. The browser then includes the "cookie" within every subsequent request to the server.
+
+
+ Not:
+
+ In case of the session cookie based approach, the sessionId does not contain any userId information, but is a random string generated and signed by the “secret key”.
+The sessionId is then saved within a sessionDB. The sessionDB is a database table that maps “sessionId” < — -> “userId”.
+Since sessionIds are stored in a sessionDB, the “session cookie approach” is sometimes called “stateful” approach to managing sessions, since the “state” or “session” is saved within a DB.
+
+
+*****using jwt**
+
+1. Server generates an "accessToken", encrypting the "userId" and "expiresIn", with the ACCESS_TOKEN_SECRET, 
+and sends the "accessToken" to the browser (client side).
+2. The browser (client side) receives the "accessToken" and saves it on the client side.
+3. The "accessToken" is included in every subsequent request to the server.
+
+
+note:
+In case of the JWT approach, the accessToken itself contains the encrypted “userId”, and the accessToken is not saved within any sessionDB.
+Since no DB is required in case of the “jwt approach”, it is sometimes called “stateless” approach to managing sessions, since no “state” or “session” is saved within a DB (it is contained within the JWT token itself).
+The JWT tokens are sometimes referred to as “Bearer Tokens” since all the information about the user i.e. “bearer” is contained within the token.
+
+// login and sign up are both authentication but access of denied things is calle Authorization

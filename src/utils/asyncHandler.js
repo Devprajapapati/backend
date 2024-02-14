@@ -1,10 +1,10 @@
-const asyncHadler = (request) => {
-     (req,res,next) => {
+const asyncHandler = (request) => {
+    return (req,res,next) => {
         Promise.resolve(request(req,res,next)).catch((err) => next(err))
      }
 }//req basicallly ek func hai 
 
-export default asyncHadler
+export default asyncHandler
 
 
 
@@ -25,3 +25,11 @@ export default asyncHadler
 //         })
 //     }
 // }
+
+// const daku = (fn) => {return (req,res) => {
+//     Promise.resolve(fn(req,res))
+// }
+
+// }
+
+
