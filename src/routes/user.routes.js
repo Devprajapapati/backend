@@ -10,7 +10,7 @@ import {registerUser,
     updateAccountDetails, 
     logoutUser,
     refreshAccessTokenRegenrate, 
-    updateUserCoverImage} 
+    updateUserCoverImage}  
     from '../controllers/user.controler.js'
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
