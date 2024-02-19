@@ -70,11 +70,11 @@ userSchema.pre("save",async function (next){
 // console.log(passowrd)
 //basically ye methods mere hai mongoose ke inbuilt ni hai to m access bhi inhe User se nahi balki apne user se hi krr paunga
 userSchema.methods.isPasswordCorrect = async function(password){
-    const trimmedPass = password.trim();
-    const trimmedStoredPassword = this.password.trim();
+
     //compare method basically jo chheze mangta hai strng me pasword jo user bhejega and encrpyted password
-    // console.log(password)
-   return await bcrypt.compare(trimmedPass, trimmedStoredPassword);
+    console.log(password)
+    console.log(this.password)
+   return await bcrypt.compare(password, this.password);
 }
           
 userSchema.methods.generateAccessToken =  function (){

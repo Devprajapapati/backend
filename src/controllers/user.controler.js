@@ -5,12 +5,13 @@ import { User} from '../models/user.models.js'   //since all models files are ex
                                                  // so all models files acan drectly contact with the database
 
 
-import { uplaodOnCloudinary } from '../utils/cloudinary.js' // now uplaod from cloudinary
+import { deleteOnClodinary, uplaodOnCloudinary } from '../utils/cloudinary.js' // now uplaod from cloudinary
 
 
 import { apiResponse } from '../utils/apiResponse.js' //for rspponse
 
 import jwt from "jsonwebtoken"
+import mongoose from 'mongoose'
 
 const generateAceesAndRefreshTokens = async(userId) => {
 
@@ -282,11 +283,11 @@ const loginUser = asyncHandler(async(req,res) => {
         $or: [{username} ,{email}]
       })
   
+         console.log(existedUser)
       if(!existedUser){
         throw new apiError(404,"Sign up first || user doen not exiseted")
       }   
     //   console.log(password)
-    //   console.log(existedUser.password)
       
       // abb ye jo hai isPassordCorrect sba meere banaye hue method hai naki mingdb ke khdu ek to me
       //unhe ecess bhi khudhi karunga
@@ -358,8 +359,8 @@ Todods:
   User.findByIdAndUpdate(
    await req.user._id,
     {
-        $set :{
-            refreshToken: undefined
+        $unset :{
+            refreshToken: 1
         }
     },
     {
@@ -372,7 +373,6 @@ const options = {
  }
  return res.status(200).clearCookie("accessToken",options).clearCookie("refreshToken",options).json(new apiResponse(200,{},"userlogout"))
 })
-
 
       //basiclly refresh token hamare access token to refresh krne ke liye use kiya jaa hai hota ye hai ham accesss token
      // short lived hta hai o ham krte hai ki ek endpoint banate hai jab isse end point pe cheez pauche to hamara token refrgenerate hojaye
@@ -418,17 +418,17 @@ try {
 
 })    
 
-
 const changeCureentPassword = asyncHandler(async(req,res) =>{ 
 
-    const {oldpassword,newpassword,confirmPassword} = req.body
+    const {oldpassword,newpassword} = req.body
 
-    if(!(newpassword === confirmPassword))
-    {
-        throw new apiError(400,"new and confirm password both are different")
-    }
-
+    // if(!newpassword === !confirmPassword)
+    // {
+    //     throw new apiError(400,"new and confirm password both are different")
+    // }
+ 
     const currentUser = await User.findById(req.user?._id)
+    // console.log("Existed user:",currentUser)
     if(!currentUser){
         throw new apiError(400,"Cannot find user")
     }
@@ -454,12 +454,11 @@ const changeCureentPassword = asyncHandler(async(req,res) =>{
 
 })
 
-
-const getCurrentUser = asyncHandler(async(res,req)=>{
-    return res.status(200).json(
-        200,
-        req.user,
-        "cureent user found successfully"
+const getCurrentUser = asyncHandler(async(req,res)=>{
+    return res.json(
+        new apiResponse(        200,
+            req.user,
+            "cureent user found successfully")
     )
 })
 
@@ -490,9 +489,10 @@ const updateAccountDetails = asyncHandler(async(req,res) => {
 
 })
 
-const updateUserAvatar = asyncHandler(async(res,req) => {
+const updateUserAvatar = asyncHandler(async(req,res) => {
     
     const updatedAvatar =  req.file?.path
+    // console.log(updatedAvatar);
     if(!updatedAvatar){
         throw new apiError(400,"updated avatar file localpath not found")
     }
@@ -500,6 +500,17 @@ const updateUserAvatar = asyncHandler(async(res,req) => {
     const avatar= await uplaodOnCloudinary(updatedAvatar)
     if(!avatar.url){
         throw new apiError(400,"updated avatar file when uploaded on cloudinary not found")
+    }
+
+    //previous image deleetion
+
+    const localpath = await User.findById(req.user?._id).select("-password -refreshToken")
+    console.log(localpath);
+    if(!localpath){
+        throw new apiError(400,"purani file does not found")
+    }
+    else{
+        await deleteOnClodinary(localpath.avatar)
     }
 
    const userFound = await User.findByIdAndUpdate(req.user?._id,
@@ -520,7 +531,6 @@ const updateUserAvatar = asyncHandler(async(res,req) => {
             )
         )
 })
-
 
 const updateUserCoverImage = asyncHandler(async(req,res) => {
     const coverImageLocalpath =  req.file?.path
@@ -552,6 +562,137 @@ const updateUserCoverImage = asyncHandler(async(req,res) => {
         )
 })
 
+const getUserChannelProfile = asyncHandler(async(req,res)=>{
+    //querey parameter is different from path -> basically queerey params se ham log flterkrte hai and nomal :id se ham direct exact path dete hai
+    const {username} = req.params
+    if(!username?.trim()){
+        throw new apiError(400,"username is missing")
+    }
+
+  const channel = await User.aggregate([
+        {
+            $match:{
+                username:username
+            }
+        },
+        {
+            $lookup:{
+                from:"subscriptions",
+                localField:"_id",
+                foreignField:"channel",
+                as:"subscriber"
+            }
+        },
+        {
+            $lookup:{
+                from:"subscriptions",
+                localField:"_id",
+                foreignField:"subscriber",
+                as:"subscriberTo"
+            }
+        },
+        {
+           $addFields:{
+            subscribedCount:{
+                $size:"$subscriber"
+            },
+            channelSubscribedToCount:{
+                $size:"$subsciberTo"
+            },
+            isSubscribed:{
+                $cond:{
+                    if:{$in: [req.user?._id,"$subscriber.subscriber"]},
+                    then:true,
+                    else:false
+                }
+            },
+            
+           },
+            //in jo hai vo basically objects ke aner bhi and array ke ander dono jaghe dekleta hai
+        },
+        {
+            $project:{
+                fullName:1,
+                username:1,
+                email:1,
+                subscribedCount:1,
+                channelSubscribedToCount:1,
+                isSubscribed:1,
+                avatar:1,
+                coverImage:1,
+            }
+        }
+    ])
+
+    if(!channel?.length){
+        throw new apiError(400,"Pipline not wotking channel doesnot exist")
+    }
+    return res.status(200).json(
+        new apiResponse(
+            200,
+            channel[0],
+            "user channel fetched succesfully"
+        )
+    )
+})
+
+const getWatchHistory = asyncHandler(async(req,res)=>{
+    // req.user._id ->basically hame isse mongodb ki id ni mllti hame milti hai ek string par jab ham mongoose usee krte hai jo method lgata hai find etx unhe jab ussse krte hai to mongoose usse mongodb ki id me convert krta hai
+
+    // abb basically hame watch history kiski chaiye hame chaiye uss user ki jo login krr chukka ho to tab ham usse krte hai
+
+    // abb hame sub pipline kyu banai iska ye reason hai ki jab hamne ek pipline connectkrdi fir vo jo owner hai vo dependable ahi user pe vo usse watchhstory ke array ke ander object jo hoga usme nahi hoga vo
+   const user =  await User.aggregate([
+    {
+        $match:{
+            _id: new mongoose.Types.ObjectId(req.user._id)
+        }
+    },
+    {
+        $lookup:{
+            from:"vedios",
+            localField:"watchHistory",
+            foreignField:"_id",
+            as:"watchHistory",
+            pipeline:[//bc hua ye ki abb ham chchte hai ki jo lookup ka data ham user me dalre hai usme owner bhi ayye isliye hamne k uske under lookup banaya abb basically jo ander wala lookup hoga uske ander user ka bhi to adata hoga isliye ham uski further reducee krre hai
+                {//basically subpipline uske krne ka fyda yhi hai ki vo ssi object me include krdegi
+                    $lookup:{
+                        from:"users",
+                        localField:"owner",
+                        foreignField:"_id",
+                        as:"owner",
+                        pipeline:[
+                            {
+                                $project:{
+                                    fullName:1,
+                                    username:1,
+                                    avatar:1
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    $addFields:{
+                        owner:{
+                            $first:"$owner"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    ])
+
+    return res.status(200).json(
+        new apiResponse(
+            200,
+            user[0].watchHistory,
+            "Wtach history fetched successfully"
+        )
+    )
+})
+
 export {loginUser , 
     registerUser,
     logoutUser,
@@ -560,6 +701,9 @@ export {loginUser ,
     updateAccountDetails,
     changeCureentPassword,
     updateUserAvatar,
+    getUserChannelProfile,
     updateUserCoverImage,
+    getWatchHistory,
+    
 
 }

@@ -2,6 +2,8 @@ import {v2 as cloudinary} from "cloudinary"
 import fs from 'fs' 
 
 import dotenv from "dotenv"
+
+
 dotenv.config()
 // file sysytem ding many function like read ,wriete,async etx etx
 
@@ -40,4 +42,20 @@ const uplaodOnCloudinary = async(localFilePath) => {
     }
 }
 
-export {uplaodOnCloudinary}
+const deleteOnClodinary = async(localpath) => {
+  try{ console.log(localpath);
+    if(!localpath){
+      return "local path of deleeted file missing"
+    }
+
+     await cloudinary.uploader.destroy(localpath,{
+      resource_type:"auto"
+    })
+
+  }
+  catch(error){
+    throw error;
+  }
+}
+
+export {uplaodOnCloudinary,deleteOnClodinary}
