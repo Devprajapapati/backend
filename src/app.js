@@ -33,14 +33,17 @@ app.use(cookieParser())
 
 
 //Routes import
-import router from './routes/user.routes.js'
+import userrouter from './routes/user.routes.js'
+import  subsrouter  from './routes/subscription.routes.js'
 
 //routes declaration
 //basically abb ham yha par middleare set krenge kyoki abb routes dusri file se ayenge to middleares set honge
 
 // app.use('/users',router)
 
-app.use('/api/v1/users',router)
+app.use('/api/v1/users',userrouter)
+app.use('/api/v1/subscription',subsrouter)
+
 
 // https://localhost: 8000/api/v1/users/register
 

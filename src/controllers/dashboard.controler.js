@@ -1,0 +1,2 @@
+//getchannelstats
+//getchannelvedios

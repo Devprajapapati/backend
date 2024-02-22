@@ -36,7 +36,7 @@ const userSchema = new Schema(
             required:true,
             trim:true,
             index:true,
-        },
+        },  
         avatar:{
             type : String, // cloudinary url
             required: true,
@@ -46,7 +46,19 @@ const userSchema = new Schema(
         },
         refreshToken: {
             type: String,
-        }
+        },
+        subscriber:[
+            {
+                type:Schema.Types.ObjectId,
+                ref:"User"
+            }
+        ],
+        subscribeTo:[
+            {
+                type:Schema.Types.ObjectId,
+                ref:"User"
+            }
+        ]
     }, {timestamps:true}
 )
 
