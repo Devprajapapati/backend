@@ -1,7 +1,10 @@
 import {v2 as cloudinary} from "cloudinary"
 import fs from 'fs' 
+import apiError from "./apiError.js";
 
 import dotenv from "dotenv"
+import asyncHandler from "./asyncHandler.js";
+
 
 
 dotenv.config()
@@ -10,7 +13,7 @@ dotenv.config()
 
 //unlink basically delete ka option hai isme basically ham uske isliye krte hai ki ek abr jab maine clodinary pe file upload krdi hai to abb main apne server se unlink krra rha hu
 
-          
+           
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_API_NAME, 
   api_key: process.env.CLOUDINARY_API_KEY, 
@@ -42,20 +45,25 @@ const uplaodOnCloudinary = async(localFilePath) => {
     }
 }
 
+
 const deleteOnClodinary = async(localpath) => {
-  try{ console.log(localpath);
-    if(!localpath){
-      return "local path of deleeted file missing"
+  try{ 
+    const publicId = localpath.split('/').pop().replace(/\.(jpg|png|gif|jpeg|mp4|avi|mov|mkv)$/, '')
+    
+    console.log(publicId);
+    if(!publicId){
+      throw new apiError(400, "local path of deleeted file missing")
     }
 
-     await cloudinary.uploader.destroy(localpath,{
-      resource_type:"auto"
+     const result  = await cloudinary.uploader.destroy(publicId,{
+      resource_type:"video"
     })
+    console.log(result);
 
   }
   catch(error){
-    throw error;
+    throw new apiError(400,"cannot delete");
   }
 }
 
-export {uplaodOnCloudinary,deleteOnClodinary}
+export {uplaodOnCloudinary,deleteOnClodinary} 

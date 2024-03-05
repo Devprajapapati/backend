@@ -651,8 +651,8 @@ const getWatchHistory = asyncHandler(async(req,res)=>{
     {
         $lookup:{
             from:"vedios",
-            localField:"watchHistory",
-            foreignField:"_id",
+            localField:"_id",
+            foreignField:"owner",
             as:"watchHistory",
             pipeline:[//bc hua ye ki abb ham chchte hai ki jo lookup ka data ham user me dalre hai usme owner bhi ayye isliye hamne k uske under lookup banaya abb basically jo ander wala lookup hoga uske ander user ka bhi to adata hoga isliye ham uski further reducee krre hai
                 {//basically subpipline uske krne ka fyda yhi hai ki vo ssi object me include krdegi

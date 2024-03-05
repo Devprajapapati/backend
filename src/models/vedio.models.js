@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+import mongoose,{Schema} from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
-const vedioSchema = new mongoose.Schema(
+const vedioSchema = new Schema(
     {
         vedioFile: {
             type: String, // cloudinary url
