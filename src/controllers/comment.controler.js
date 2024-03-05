@@ -12,8 +12,6 @@ const getVideoComments = asyncHandler(async (req, res) => {
     const {videoId} = req.params
     const {page = 1, limit = 10} = req.query
 
-    //vedi check rkni hai hai kya
-    //agar hai to pipline laga denge
 
     if(!videoId){
         throw new apiError(400,"videoId is required for getvedios")

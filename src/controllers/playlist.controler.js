@@ -38,8 +38,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
     const {userId} = req.params
     //TODO: get user playlists
 
-    // sabse phle dekhenge ki user ne koi playlist banayi bhi hai
-    //agar banayi hai to kitni hai 
+  
 
     if(!userId){
         throw new apiError(400,"userid cannot found")
@@ -94,8 +93,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
 const getPlaylistById = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
-    //TODO: get playlist by id
-    //sabse phle check rkunga ki vo playlist hai bhi then agar hai tp find rkenge
+    /
 
     if(!playlistId){
         throw new apiError(400,"for deletion u must provide playlist id is necesary")
@@ -119,10 +117,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
     const {playlistId, videoId} = req.params
 
-    //playid and veduioid exist 
-    //vedio and playlist exist in db
-    // me check krta hu ki vo vedio uske ander phle se ha kya -> no overwrite
-    //agar nahi hai to daldo
+   
 
     if(!playlistId){
         throw new apiError(400,"Cannot get playlist id")
@@ -172,10 +167,7 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     const {playlistId, videoId} = req.params
     // TODO: remove video from playlist
-    //check krna hia ki playlist and vedio existkrti hai kya
-    // fir ye check krna hai us playlist me vo vedio hai 
-    // fir check krnege ki vo vedio uss user se belong krti hai kya
-    //then ham use me se pull krdenge
+   
 
 
     if(!(playlistId && videoId)){
@@ -219,8 +211,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
     // TODO: delete playlist
 
-    //sba se phle me us playlist o find krunfga ki hai bhi nahi
-    //agar milti to fir bss dlete
+ 
 
     if(!playlistId){
         throw new apiError(400,"for deletion u must provide playlist id is necesary")
@@ -250,9 +241,7 @@ const updatePlaylist = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
     const {name, description} = req.body
     //TODO: update playlist
-    //check krunga vo playlist hai ki nahi
-    //fir me check krunga ki us nam se vo chezz hai ki nahi
-    //agr nahi hai to update krdunga
+
 
     if(!playlistId){
         throw new apiError(400,"for updation u must provide playlist id is necesary")

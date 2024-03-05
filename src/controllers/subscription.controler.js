@@ -13,11 +13,7 @@ import { apiResponse } from "../utils/apiResponse.js"
 
 
 const subscribeToaChannel = asyncHandler(async(req,res)=>{
-     // sabse phle me lunga params se id jo mujhe krna hai subscribe
-     //me check krunga ki vo exist krta hai ya nahi
-     //fir me check krunga ki vo user phle se subscribed hai ya nahi us users se
-     //fir me use subscriebe krunga abb me id store krunga'
-     // and then me abb push krunga array me
+   
 
 
      const {channelId} = req.params;
