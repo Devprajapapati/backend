@@ -13,21 +13,14 @@ app.use(cors({
 }))
 
 
-//middlleware set
-//json acceptesd in app.use
 
-// req middleare
-//json limit - ki abb ham sari files json me thodi hi denge
 app.use(express.json({limit:"16kb"}))
 
-//ase hi url limit 
+
 app.use(express.urlencoded({limit:"16kb",extended:true}))
 
-//ase hi public files like images etc // alowed
 app.use(express.static("public"))
 
-
-//ccokie parser basically krte hai ye ki kaise me server se browser ki cookies excess krr pau basically crud operation perform krr pau cookie me
 app.use(cookieParser()) 
 
 
@@ -46,10 +39,6 @@ import like from "./routes/like.routes.js"
 
 
 
-//routes declaration
-//basically abb ham yha par middleare set krenge kyoki abb routes dusri file se ayenge to middleares set honge
-
-// app.use('/users',router)
 
 app.use('/api/v1/users',userrouter)
 app.use('/api/v1/subscription',subsrouter)
@@ -71,10 +60,3 @@ app.use('/api/v1/like',like)
 export default app
 
 
-// app.use is mostly used for middleware and configuration things
-
-
-//middleware basically ek phase ya fir checkeer hota hai
-//abb jaise hi req ayyi frontend se backend me to abb suno ki ajb req ayyi frontend se backednd me o ek chez beech me hoti ahi jo check krti hai ki app capable ho req lene ki ex. login hai ya nhai
-
-// abb express me (err,req,res,next) -> jab bhi ham next ki baat krte hai iska mtlb ham midddleware ki baat krre hai
