@@ -15,14 +15,7 @@ import {registerUser,
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
-/*basically yha hamne ye check kiya hai jaise register route kholne ki req ayye to register user
- cahl jaye and apna kam krre obviously 
- ham yha kya check krrr hai ye ki req ayye par  register usser janne se phle mtlb response janne se phle ek check 
- lgga de ki file 
-*/
-//basically jaise hi data atta haiforntend se to file
-// mtlb ajise hi ham upload.feild use krte hai to hota ha ki sara data jo req me se ayya tha hamne name se specify krra tha and vo directly vaha se diskstorage me stiore hogya 
-//hamne yahi par upload krdi direct basically check krne ke liye dalla hai
+
 
 router.route('/register').post(
     upload.fields([
