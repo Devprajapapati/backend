@@ -10,15 +10,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
     //TODO: get all videos based on query, sort, pagination
 
-    //sort - sortby , sorttype
-    //query - query
-    //pagination - limit and page
 
-    //page->iska matlab ye hai ki konsa page chaiye tumhe mtlb dikhana 
-    //limit ->mtlb uss page pe kitne item chaiye
-    //skip-> kitne elemt skip krne ex page=2 to m phle page me jo item ayye the unhe skip krdunga agar direct 2 page kholu
-    //querey -> basically vo nam jisse me vedio search krunga
-    //ortby-> basically kisse sort krna hai ex date
 
     if(!userId){
         throw new apiError(400,"userid required")
@@ -97,9 +89,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description} = req.body
     // TODO: get video, upload to cloudinary, create video
 
-    //user login hona chaiye
-    //clodinary pe upload krna hai
-    //vedio model banana hai
+    
 
     if(!(title && description))
     {
@@ -123,16 +113,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     const thumbnail = await uplaodOnCloudinary(thumbnailUrl)
     console.log(vedio);
 
-   /* const owner = await Vedio.aggregate([
-        {
-            $lookup:{
-                from:"users",
-                localField:"owner",
-                foreignField:"_id",
-                as:"owner"
-            }
-        }
-    ])*/
+
     const vedioData = await Vedio.create({
         vedioFile:vedio?.url,
         thumbnail:thumbnail?.url,
@@ -159,8 +140,6 @@ const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: get video by id
 
-    //sabse phle me check krunga ki vo vedio hai bhi ki nahi
-    //agar hogi to bss data dena hai
 
    const userVedio = await Vedio.findById(videoId)
    console.log(userVedio?.owner.toString());
@@ -185,7 +164,7 @@ const getVideoById = asyncHandler(async (req, res) => {
 const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: update video details like title, description, thumbnail
-    //sabse phle me check krunga ki vo vdeio hai bhi nahi
+ 
 
     const myVedio = await Vedio.findById(videoId)
 
