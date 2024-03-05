@@ -12,7 +12,7 @@ import asyncHandler from '../utils/asyncHandler.js'
 const toggleVideoLike = asyncHandler(async (req, res) => {
     const {videoId} = req.params
     //TODO: toggle like on video
-    // me check krunga ki vedio hai nahi hai
+  
 try {
     
         if(!videoId){
@@ -153,7 +153,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
             likedBy:req.user?._id,
       
         })
-        if(!tweetLike){
+        if(!tweetLike){ 
             throw new apiError(400,"unable to like a tweet")
         }
         return res.status(200).json(
@@ -173,7 +173,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 const getLikedVideos = asyncHandler(async (req, res) => {
     //TODO: get all liked videos
 
-    //mre to modify
+   
   try {
      const likedVedios = await Like.aggregate([
           {
