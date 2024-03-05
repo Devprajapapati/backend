@@ -2,6 +2,8 @@
 import mongoose from "mongoose"
 import { Like } from "../models/like.models.js"
 import { Vedio } from "../models/vedio.models.js"
+import { Tweet } from "../models/tweet.models.js"
+import { Comment } from "../models/comment.models.js"
 import apiError from "../utils/apiError.js"
 import { apiResponse } from "../utils/apiResponse.js"
 import asyncHandler from '../utils/asyncHandler.js'
@@ -27,9 +29,11 @@ try {
             likedBy:req.user._id
         })
         console.log(userAlreadyLiked);
-    
+        
         if(userAlreadyLiked && userAlreadyLiked.length>0){
-            await Like.findByIdAndDelete(videoId)
+            await Like.findByIdAndDelete(userAlreadyLiked,
+            {new:true})
+          
             
             return res.status(200).json(
                 new apiResponse(
@@ -70,18 +74,18 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
             throw new apiError(400,"commentId  not found")
         }
     
-        const commentFound = await Vedio.findById(commentId)
+        const commentFound = await Comment.findById(commentId)
         if(!commentFound){
             throw new apiError(400,"comment searching for like not found")
         }
     
-        const userAlreadyLiked = await Like.findOne({
+        const userAlreadyLiked = await Like.find({
             comment:commentId,
             likedBy:req.user?._id
         })
     
-        if(userAlreadyLiked){
-            await Like.findByIdAndDelete(commentId)
+        if(userAlreadyLiked  && userAlreadyLiked.length>0){
+            await Like.findByIdAndDelete(userAlreadyLiked,{new:true})
             
             return res.status(200).json(
                 new apiResponse(
@@ -123,18 +127,18 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
             throw new apiError(400,"tweetId  not found")
         }
     
-        const tweetFound = await Vedio.findById(tweetId)
+        const tweetFound = await Tweet.findById(tweetId)
         if(!tweetFound){
             throw new apiError(400,"tweet searching for like not found")
         }
     
-        const userAlreadyLiked = await Like.findOne({
+        const userAlreadyLiked = await Like.find({
             tweet:tweetId,
             likedBy:req.user?._id
         })
     
-        if(userAlreadyLiked){
-            await Like.findByIdAndDelete(tweetId)
+        if(userAlreadyLiked && userAlreadyLiked.length>0){
+            await Like.findByIdAndDelete(userAlreadyLiked,{new:true})
             
             return res.status(200).json(
                 new apiResponse(
@@ -187,11 +191,6 @@ const getLikedVideos = asyncHandler(async (req, res) => {
           },
           {
               $unwind:"$likedvedios"
-          },
-          {
-            $match:{
-              "likedvedios.isPublished" : true,
-            }  
           },
           {
               $project:{

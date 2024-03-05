@@ -35,12 +35,12 @@ const getUserTweets = asyncHandler(async (req, res) => {
 
     const {userId} = req.params;
 
-    if(!userId){
+    if(!userId ){
         throw new apiError(400,"for user tweets id is required")
     }
 
    const tweet =  await User.findById(userId);
-   if(!tweet){
+   if(!tweet || !(tweet.owner.toString() == req.user._id.toString())){
     throw new apiError(400,"user doesnot found")
    }
 
@@ -49,7 +49,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
         $match:{
             owner:new mongoose.Types.ObjectId(userId)
         }
-    },//do more
+    },
 
     {
         $project:{
@@ -80,7 +80,7 @@ const updateTweet = asyncHandler(async (req, res) => {
         throw new apiError(200,"tweetID doesnot exist")
     }
 
-    if(!tweetData){
+    if(!tweetData ){
         throw new apiError(200,"tweetdata doesnot exist")
     }
 

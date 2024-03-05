@@ -6,49 +6,11 @@ import apiError from "../utils/apiError.js"
 import { apiResponse } from "../utils/apiResponse.js" 
 
 
-const toggglesubscription = asyncHandler(async(req,res)=>{
-    //check krenge ki ham login hai ya nah -> middleware krdega
-    //uski id lenge params se and check krna hai ki jo channel hai uski subscriber me m hu ya nahi
-    //to basically sabse phle muhje documents me apne app ko find out krna hia
-     // maych krna hai ki vo channel wha par exists krta hai ya nahi bbs
 
-     /*
-     const {channelId} = req.params
-     const registeredChannel = await User.findById(channelId)
-     if(!registeredChannel){
-        throw new apiError(400,"channel which u have subscribed haven not registered")
-     }
-
-     const objectsIamIncluded = await Subscription.aggregate([
-        {
-            $match:{
-                subscriber:req.user.username,
-                channel:registeredChannel.username
-            }
-        },
-     ])
-     if(!objectsIamIncluded){
-       return res.status(201).json(
-        new apiResponse(
-            200,
-            false,
-            "User have unsubscribed the channel"
-        )
-)}
-     else{
-        return res.status(200).json(
-            new apiResponse(
-                201,
-                true,
-                "User have subscribed the channel"
-            )
-    )}
-     }
-     */
      
 
-    }
-)
+    
+
 
 const subscribeToaChannel = asyncHandler(async(req,res)=>{
      // sabse phle me lunga params se id jo mujhe krna hai subscribe
@@ -185,7 +147,7 @@ const unsubscribeaChannel = asyncHandler(async(req,res)=>{
 const getuserchannelsubscriber = asyncHandler(async(req,res)=>{
     const {subscriberId} = req.params
     const registeredUser = await User.findById(subscriberId)
-    if(!registeredUser){
+    if(!registeredUser || !(registeredUser._id.toString() == req.user._id.toString())){
         throw new apiError(400,"subscriber id doesnot exists")
      }
 
@@ -221,7 +183,7 @@ const getsubscribedchannels = asyncHandler(async(req,res)=>{
     const {channelId} = req.params
 
     const registeredUser = await User.findById(channelId)
-    if(!registeredUser){
+    if(!registeredUser || !(registeredUser._id.toString() == req.user._id.toString())){
         throw new apiError(400,"channel which u are trying to acces for getting list doesnot exist")
      }
 
@@ -249,7 +211,7 @@ const getsubscribedchannels = asyncHandler(async(req,res)=>{
 })
 
 export {
-    toggglesubscription,
+
     subscribeToaChannel,
     unsubscribeaChannel,
     getuserchannelsubscriber,

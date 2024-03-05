@@ -8,10 +8,7 @@ import asyncHandler from "./asyncHandler.js";
 
 
 dotenv.config()
-// file sysytem ding many function like read ,wriete,async etx etx
 
-
-//unlink basically delete ka option hai isme basically ham uske isliye krte hai ki ek abr jab maine clodinary pe file upload krdi hai to abb main apne server se unlink krra rha hu
 
            
 cloudinary.config({ 

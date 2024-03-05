@@ -24,6 +24,8 @@ const getVideoComments = asyncHandler(async (req, res) => {
         throw new apiError(400,"vedio doesnot exist")
     }
 
+    
+
    const allCommentFound = await Comment.aggregate([
         {
             $match:{
@@ -36,7 +38,21 @@ const getVideoComments = asyncHandler(async (req, res) => {
                 localField:"owner",
                 foreignField:"_id",
                 as:"owner"
-            }//add feld
+            }
+        },
+        {
+            $addFields:{
+                owner:{
+                $first:"$owner"}
+            }
+        },
+        {
+            $lookup:{
+                from:"likes",
+                localField:"_id",
+                foreignField:"comment",
+                as:"likedBy"
+            }
         },
         {
             $skip:(page-1)*limit

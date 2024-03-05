@@ -1,4 +1,4 @@
-//response error hande krne ki class
+
 class apiResponse{
     constructor(statusCode,data,message = "sucess"){
         this.statusCode = statusCode

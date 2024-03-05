@@ -5,11 +5,13 @@ import { Vedio } from "../models/vedio.models.js"
 import apiError from "../utils/apiError.js"
 import { apiResponse } from "../utils/apiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js"
-import { Like } from "../models/like.models.js"
+
+import { Comment } from "../models/comment.models.js"
+import { Tweet } from "../models/tweet.models.js"
 
 const getChannelStats = asyncHandler(async (req, res) => {
     // TODO: Get the channel stats like total video views, total subscribers, total videos, total likes etc.
-    const obj ={}
+  const obj ={};
    const vediodetails  = await User.aggregate([
         {
             $match:{
@@ -20,12 +22,11 @@ const getChannelStats = asyncHandler(async (req, res) => {
             $lookup:{
                 from:"vedios",
                 localField:"_id",
-                foreignField:"owner",
+                foreignField:"owner", 
                 as:"totalvedios"
             }
         },
-        
- 
+   
         {
             $addFields:{
                 totalvedios:"$totalvedios"
@@ -42,42 +43,154 @@ const getChannelStats = asyncHandler(async (req, res) => {
                 } ,
                 totalviews:{
                     $sum:"$totalvedios.views"
-                },
-                totalsubsciber:{
-                    $sum:"$subscriber"
-                },
+                },   
               
+                      
           }
-        },
-   
-        
-    ])
-    const likesdetails = await Vedio.aggregate([
-        {
-            $match:{
-                owner:new mongoose.Types.ObjectId(req.user?._id)
-            }
         },
         {
             $lookup:{
-                from:"likes",
+                from:"users",
                 localField:"_id",
-                foreignField:"vedio",
-                as:"totallikes"
+                foreignField:"_id",
+                as:"totalsubscribers" 
+            }  
+        },
+        {
+            $addFields:{
+                totalsubscribers:{
+                    $first:"$totalsubscribers"
+                },
+               
+            },
+           
+        },
+        {
+            $project:{
+                totalvedios:1,
+                totalviews:1,
+                totalsubscribers:{
+                    $size:"$totalsubscribers.subscriber" 
+                },
+               
+            
+
             }
-        },
-        {
-            $unwind:"$totallikes"
-        },
-        {
-            $count:"totallikes"
+        }])
+        if(!vediodetails){
+        obj["vediosdetails"] = 0
+
         }
+
+        const likesdetailsofvedios = await Vedio.aggregate([
+            {
+                $match:{
+                    owner:new mongoose.Types.ObjectId(req.user?._id)
+                }
+            },
+            {
+                $lookup:{
+                    from:"likes",
+                    localField:"_id",
+                    foreignField:"vedio",
+                    as:"totalvediolikes"
+                }
+            },
+            {
+                $unwind:"$totalvediolikes"
+            },
+            {
+                $group:{
+                    _id:"$totalvediolikes._id" ,
+                    
+             }
+            },
+            {
+             $count:"totallike"
+            }
+
+        ])
+        if(!likesdetailsofvedios){
+            obj["vediosdetails"] = 0
+    
+            }
+
+        const likesdetailsofcomments = await Comment.aggregate([
+            {
+                $match:{
+                    owner:new mongoose.Types.ObjectId(req.user?._id)
+                }
+            },
+            {
+                $lookup:{
+                    from:"likes",
+                    localField:"_id",
+                    foreignField:"comment",
+                    as:"totalcommentlikes"
+                }
+            },
+            {
+                $unwind:"$totalcommentlikes"
+            },
+            {
+                $group:{
+                    _id:"$totalcommentlikes._id" ,
+                    
+             }
+            },
+            {
+             $count:"totallike"
+            }
+
+        ])
+        if(!likesdetailsofcomments){
+            obj["vediosdetails"] = 0
+    
+            }
+
+        const likesdetailsoftweets = await Tweet.aggregate([
+            {
+                $match:{
+                    owner:new mongoose.Types.ObjectId(req.user?._id)
+                }
+            },
+            {
+                $lookup:{
+                    from:"likes",
+                    localField:"_id",
+                    foreignField:"tweet",
+                    as:"totaltweetlikes"
+                }
+            },
+            {
+                $unwind:"$totaltweetlikes"
+            },
+            {
+                $group:{
+                    _id:"$totaltweetlikes._id" ,
+                    
+             }
+            },
+            {
+             $count:"totallike"
+            }
+
+        ])
+        if(!likesdetailsoftweets){
+            obj["vediosdetails"] = 0
+    
+            }
+
+        obj["vediosdetails"] = vediodetails ,
+        obj["vedioslkes"] = likesdetailsofvedios
+        obj["commentlkes"] = likesdetailsofcomments
+        obj["tweetlikes"] = likesdetailsoftweets
+
+
+ 
+   
+        
      
-    ])
-
-
-    obj["vediodetails"] = vediodetails;
-    obj["likedetails"] = likesdetails;
 
 
 
@@ -85,7 +198,8 @@ const getChannelStats = asyncHandler(async (req, res) => {
     return res.json(
         new apiResponse(
             200,
-            obj,
+            obj
+            
         )
     )
 })

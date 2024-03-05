@@ -189,7 +189,7 @@ const updateVideo = asyncHandler(async (req, res) => {
 
     const myVedio = await Vedio.findById(videoId)
 
-    if(!myVedio){
+    if(!myVedio ||!(userVedio.owner.toString() === req.user._id.toString())){
         throw new apiError(400,"Cannot find the vedio")
     }
 
@@ -240,7 +240,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
         throw new apiError(400,"Cannot find the vedioid")
     }
     const deleteVedio =  await Vedio.findById(videoId)
-    if(!deleteVedio){
+    if(!deleteVedio || !(deleteVedio.owner.toString() === req.user._id.toString())){
         throw new apiError(400,"Cannot find the vedio")
     }
     console.log(deleteVedio.vedioFile);
