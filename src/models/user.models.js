@@ -65,9 +65,6 @@ const userSchema = new Schema(
 
 
 
-//pre hook basically ek middleware hai jo ki kam krta hai ase ki koi cheez database me se staore hone se phle jo bhi kam krna hai vo pre hooks hota hai 
-//ise ander prebuild chheze hai jaise,save validate ,remove ,update
-
 
 userSchema.pre("save",async function (next){
     // console.log(this.password)
