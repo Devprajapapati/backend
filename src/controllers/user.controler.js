@@ -1,15 +1,13 @@
 import asyncHandler from '../utils/asyncHandler.js'
 import apiError from '../utils/apiError.js'
 
-import { User} from '../models/user.models.js'   //since all models files are export and made by maongoose a part of mongodb
-                                                 // so all models files acan drectly contact with the database
+import { User} from '../models/user.models.js'  
 
 
-import { deleteOnClodinary, uplaodOnCloudinary } from '../utils/cloudinary.js' // now uplaod from cloudinary
+import { deleteOnClodinary, uplaodOnCloudinary } from '../utils/cloudinary.js' 
 
 
-import { apiResponse } from '../utils/apiResponse.js' //for rspponse
-
+import { apiResponse } from '../utils/apiResponse.js' 
 import jwt from "jsonwebtoken"
 import mongoose from 'mongoose'
 
@@ -22,7 +20,7 @@ const generateAceesAndRefreshTokens = async(userId) => {
      const refreshToken =   user.generateRefreshToken()
         
      user. refreshToken = refreshToken
-     //abb jab hi ham usse save krenge to hoga ye ki kuch aur feild jo hamree user me nahi hai vo bhi add hojayengi
+   
      await user.save({validateBeforeSave: false})
 
      return {accesToken,refreshToken}
@@ -39,42 +37,10 @@ const generateAceesAndRefreshTokens = async(userId) => {
 const registerUser = asyncHandler(async(req,res) => {
 
 
-    /* 1.get informaion from fronened using postman , what are the information that is decided by user models
-    2.validation -> sab chheeze deni zaruri hai
-    3.check if user already exist :username,email
-    4.chezk for images and avatar
-    5.uplaod them to cloudinary,avtar check krna must hai kyuki hamne vo required bana rakha hai
-    6.create user object - create enery in db
-    7.Remove pssword and refresh token feild from respoanse
-    8.check fro user creation 
-    9.return res. 
-    */
-
-
-
-     /*jab frontend se data atta hai to vo req ki body me se liete hai ham backend me ex . 
-     agar from or json se data arra hai to hme direct body me mill jayega varna agar url se atta hai
-     to hma fr alag approch agate hai
-    basically hame frontend se jo data mllega vo ham models se define krte hai
-    */
-    
-    //1.
 
     const {username,fullName,email,password} = req.body
     
     
-    // console.log("request body:",req.body)
-    // console.log("request headeer:",req.header)
-    // console.log("Email:",password)
-    
-
-
-    //2.
-
-
-    // if(fullName === ""){
-    //     throw new apiError(400,"fullName is required")
-    // }
 
     if(
         [fullName,email,username,password].some((feild)=> feild?.trim === " ")
@@ -87,40 +53,6 @@ const registerUser = asyncHandler(async(req,res) => {
     }
 
 
-    //3.
-    
-    //check if user already existed
-       // 1. used some database queries
-       // 2. used operators exccessed through $ sign
-
-
-
-    /*INFORMATION-> basically the model we made using schema act like a constructor to the name we give when we use .model thing
-                    mtl ye ki jab ham .model usse krte hai t mtlb ham ek constructor bana rhe hai mtlb ek 
-                    : The mongoose.model function creates a model based on the schema. The model is a constructor function that creates instances representing documents in the database.
-
-                    abb since mongodb and mongoose connected hote kaise hai ekho : 
-                    Mongoose is an Object Data Modeling (ODM) library for MongoDB and Node.js. It provides a higher-level abstraction over the MongoDB Node.js driver, making it easier to work with MongoDB databases in a Node.js environment.
-
-                    man mudda ye hai ki jab bhi ham use name ko yh auser hai ko user kete ahi mtlb hamm basically ek 
-                    
-                    const newUser = new User({
-                     name: 'John Doe',
-                      email: 'john@example.com',
-                      age: 25,
-                    });
-
-                    ye krte hai mtlb abb ham ye kha skte hai sab data jo ham modeling pe dete hai vha se ham usko exxcess krte hai
-
-    */   
-
-       //basic approach
-    //  const existedUSerFound =   User.findOne({email}) // true or false return 
-    //  if(existedUSerFound){
-    //     throw new apiError(409,"email is already existed")
-    //  }
-
-    // to check all feild
 
    const existedUSer = await User.findOne({
         $or: [{username},{email}]
@@ -130,12 +62,6 @@ const registerUser = asyncHandler(async(req,res) => {
         throw new apiError(409,"User or Email already existed")
     }
 
-
-    //4.
-    
-    //now through multer we can acces the files we stored earlier using files
-    // ann dekho jab ham .feild usse krte hai to jo feil hai uske ander ek inbuilt thing ahi ki 
-    // kis type ki file hai  .png,.jpg etc uske hisab se array banata hai to ahm yha o ndex pe jo type hai file ka vo access krenge
 
 
     /*  ex:
@@ -202,17 +128,6 @@ const registerUser = asyncHandler(async(req,res) => {
         username: username
     })
 
-    //7
-
-    // abb basially hame check bhi karna hia sach me user create user create hua hai ki anhi
-    // use ke liye mngodb hai
-    // basically mongodb krta kya ki vo har ek entry ko ek id dega matlab har user ke liye ek specific id hogi
-    // to ham abb usse check nahi balki usko find krenge by id is agar milta hai to agge badhemge varna nahi
-    // achi baaat yeh hai ki agar user database me milla to ham vahi se password and refresh token hatayenge respnse me se akki jab vo dobara login kre vahi jwt ke liye i think
-
-
-    // by default select me sare selected hote hai to ham basically ve feild dete hai jo hame nahi chaoye
-
     // console.log("created user before findbyid:",user)
 
    const createdUser = await User.findById(user._id).select("-password -refreshToken") //return the wole response excluding 
@@ -237,37 +152,10 @@ const registerUser = asyncHandler(async(req,res) => {
 })
 
 
-/*
-const registerUser =(req,res) => {
-    return res.status(200).json({
-        message: "ok"
-    })
-}
-
-export default registerUser
- */
 
 
 const loginUser = asyncHandler(async(req,res) => {
-  /* mere:
-     Todos:
-     1.user ke pass access token hona chaiye
-     2. user sign up hona hi chaoye accound bana hona chaiye agr nahi hai to banao
-      3.user email,password feild ko khali na chodde
-      4.agar bhaar diya hai to access token ki id match krni cahiye server ke pass jo secret hai
-      5.agar match hai to login krdena hai
-  */
 
-      /* master ke:
-      Todods:
-      // req body - data
-      // username or email
-      // find the user
-      // password check
-      // access and refresh oken generate 
-      // send it to user
-
-      */
 
       //1.
       const {username,email,password} =  req.body
@@ -289,9 +177,7 @@ const loginUser = asyncHandler(async(req,res) => {
       }   
     //   console.log(password)
       
-      // abb ye jo hai isPassordCorrect sba meere banaye hue method hai naki mingdb ke khdu ek to me
-      //unhe ecess bhi khudhi karunga
- 
+    
       //3.  
       const isPasswordValid =  existedUser.isPasswordCorrect(password)
 
@@ -302,22 +188,17 @@ const loginUser = asyncHandler(async(req,res) => {
       //4.
      const {accesToken,refreshToken} =  await generateAceesAndRefreshTokens(existedUser._id)
 
-     //abb basically usse objects me sa=se hamse bhot asri asi files bhi hogi jo hame vha nahi deni hai mtlb user ko
-
+     
      const loggesUser = await User.findById(existedUser._id).select("-password -refreshToken")
 
 
-     //5.
-     //now about cookies
-
-     // setting ki ham apni coolies ko sirf server se hi modify krenge to ye tab dalna padhta hai basically
 
      const options = {
         httpOnly: true,
         secure : true
      }
 
-     // acces token and refresh cookie : basically cookie method ket valye pair leta hai
+   
 
      return res.status(200)
      .cookie("accessToken",accesToken,options)
@@ -336,24 +217,7 @@ const loginUser = asyncHandler(async(req,res) => {
 const logoutUser = asyncHandler(async(req,res) => {
     
 
-/*
-Todods:
-  1. remove all cookies
-  2.refresh oken reset
-*/
 
-//1.
-//phle me dikkat ye atti hai ki  bascialy user konsa dleete krna hai uski id to nhi haina
-//use like ham aona khuhd ka middkeware design krenge basically hua ye tha ki jab ham cookeparser() middleware
-// lagaya to ussse ham jo req ayyi hai uski bhi ccokie le skte hai mtlb abbb bande ne phle login kiya use pass cookie gyi haina fir dobara 
-//ayya access token match hua to basically abb ham jaise hinreq atti hai vha se ham middleqare lgga denge aur user ka data utha lenege
-
-//imp krre hai ye ki ham true login dekhenge middleare mtlb agar vahi banda dobara yya hai to ham usse data leelnge aur req.body me ek naya
-//object add krdenge and vha se fill logout ka sysytem dekhenge
-
-//basically me yha find by ud bhi use krrskte hai jaise hamne yha getAccessand 'refreshToken me ki bss wha par hame user me se refrresh token delete krnna hai
-
-//set me basically ve cheez dete hai jo hame updqe krni hoti hai
  
 
   User.findByIdAndUpdate(
@@ -374,13 +238,8 @@ const options = {
  return res.status(200).clearCookie("accessToken",options).clearCookie("refreshToken",options).json(new apiResponse(200,{},"userlogout"))
 })
 
-      //basiclly refresh token hamare access token to refresh krne ke liye use kiya jaa hai hota ye hai ham accesss token
-     // short lived hta hai o ham krte hai ki ek endpoint banate hai jab isse end point pe cheez pauche to hamara token refrgenerate hojaye
-     // vo chhexx hai:
-
-// abhi basically hamne ek controller banaya he jo reenerate krega naki endpoint diya hai endpoint route sme diya jayega
 const refreshAccessTokenRegenrate = asyncHandler(async(req,res) => {
-        //jwt verify hamesha decoded information deta ha\-
+
 try {
     
             const token = req.cookie.refreshToken || req.body.refreshToken
@@ -422,10 +281,7 @@ const changeCureentPassword = asyncHandler(async(req,res) =>{
 
     const {oldpassword,newpassword} = req.body
 
-    // if(!newpassword === !confirmPassword)
-    // {
-    //     throw new apiError(400,"new and confirm password both are different")
-    // }
+ 
  
     const currentUser = await User.findById(req.user?._id)
     // console.log("Existed user:",currentUser)
@@ -563,7 +419,7 @@ const updateUserCoverImage = asyncHandler(async(req,res) => {
 })
 
 const getUserChannelProfile = asyncHandler(async(req,res)=>{
-    //querey parameter is different from path -> basically queerey params se ham log flterkrte hai and nomal :id se ham direct exact path dete hai
+  
     const {username} = req.params
     if(!username?.trim()){
         throw new apiError(400,"username is missing")
@@ -608,7 +464,7 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
             },
             
            },
-            //in jo hai vo basically objects ke aner bhi and array ke ander dono jaghe dekleta hai
+         
         },
         {
             $project:{
@@ -637,11 +493,7 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
 })
 
 const getWatchHistory = asyncHandler(async(req,res)=>{
-    // req.user._id ->basically hame isse mongodb ki id ni mllti hame milti hai ek string par jab ham mongoose usee krte hai jo method lgata hai find etx unhe jab ussse krte hai to mongoose usse mongodb ki id me convert krta hai
-
-    // abb basically hame watch history kiski chaiye hame chaiye uss user ki jo login krr chukka ho to tab ham usse krte hai
-
-    // abb hame sub pipline kyu banai iska ye reason hai ki jab hamne ek pipline connectkrdi fir vo jo owner hai vo dependable ahi user pe vo usse watchhstory ke array ke ander object jo hoga usme nahi hoga vo
+   
    const user =  await User.aggregate([
     {
         $match:{
@@ -654,8 +506,8 @@ const getWatchHistory = asyncHandler(async(req,res)=>{
             localField:"_id",
             foreignField:"owner",
             as:"watchHistory",
-            pipeline:[//bc hua ye ki abb ham chchte hai ki jo lookup ka data ham user me dalre hai usme owner bhi ayye isliye hamne k uske under lookup banaya abb basically jo ander wala lookup hoga uske ander user ka bhi to adata hoga isliye ham uski further reducee krre hai
-                {//basically subpipline uske krne ka fyda yhi hai ki vo ssi object me include krdegi
+            pipeline:[
+                {
                     $lookup:{
                         from:"users",
                         localField:"owner",
