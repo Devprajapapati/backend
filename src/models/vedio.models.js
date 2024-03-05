@@ -43,9 +43,8 @@ const vedioSchema = new Schema(
     }
 )
 
-vedioSchema.plugin(mongooseAggregatePaginate) //abb kuch ageration pipline krna hai
+vedioSchema.plugin(mongooseAggregatePaginate) 
 
 export const Vedio = mongoose.model("Vedio",vedioSchema)
 
 
- // bcrpytjs ->password to hash mtlb ham jo password dete hai vo string me deeta he to vahi sab krna ki decrpyt etc..
