@@ -17,13 +17,14 @@ const router = Router()
 router.use(verifyJWT)
 
 router.route('/').post(createPlaylist)
-                 .patch(updatePlaylist)
+                 
+router.route('/:playlistId').patch(updatePlaylist)
                  .delete(deletePlaylist)
                  .get(getPlaylistById)
 
 router.route('/add/:videoId/:playlistId').patch(addVideoToPlaylist)
 router.route('/remove/:videoId/:playlistId').patch(removeVideoFromPlaylist)
-router.route('/user/:userID').get(getUserPlaylists)
+router.route('/user/:userId').get(getUserPlaylists)
 
 
 

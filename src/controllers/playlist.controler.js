@@ -62,7 +62,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
             owner:1,
             videos:{
                 $cond:{
-                    if:[$owner,new mongoose.Types.ObjectId(req.user?._id)],
+                    if:["$owner",new mongoose.Types.ObjectId(req.user?._id)],
                     then:"$vedios",
                     else:{
                         $filter: {
@@ -93,7 +93,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
 const getPlaylistById = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
-    /
+    
 
     if(!playlistId){
         throw new apiError(400,"for deletion u must provide playlist id is necesary")
@@ -217,9 +217,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
         throw new apiError(400,"for deletion u must provide playlist id is necesary")
     }
 
-    if(!(playlist.owner.toString() === req.user?._id.toString())){
-        throw new apiError(400,"user has to login by his id of for deletion")
-    }
+    
 
   const deleteChecker =   await Playlist.findByIdAndDelete({
         _id:playlistId,
@@ -227,6 +225,9 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 
     if(!deleteChecker){
         throw new apiError(400,"unable to delete playlist")
+    }
+    if(!(deleteChecker.owner.toString() === req.user?._id.toString())){
+        throw new apiError(400,"user has to login by his id of for deletion")
     }
 
     res.status(200).json(
@@ -257,7 +258,7 @@ const updatePlaylist = asyncHandler(async (req, res) => {
     throw new apiError(400,"playlist need for updation deoesnt exist")
    }
 
-   if(!(playlist.owner.toString() === req.user?._id.toString())){
+   if(!(platlistFound.owner.toString() === req.user?._id.toString())){
     throw new apiError(400,"user has to login by his id of for updation")
 }
 
